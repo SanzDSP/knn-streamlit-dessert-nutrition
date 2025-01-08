@@ -41,7 +41,8 @@ vitamin_d = st.checkbox("Vitamin D")
 
 # Siapkan input pengguna untuk prediksi klaster
 # Pastikan input sesuai dengan urutan fitur yang digunakan oleh model
-input_data = np.array([sugar_level, protein_level, vitamin_a, vitamin_c, vitamin_d]).reshape(1, -1)
+# Menyesuaikan urutan fitur sesuai dengan data yang digunakan dalam pelatihan
+input_data = np.array([sugar_level, protein_level, int(vitamin_a), int(vitamin_c), int(vitamin_d)]).reshape(1, -1)
 
 # Menstandarisasi input pengguna menggunakan scaler yang sama
 scaler = StandardScaler()
