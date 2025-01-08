@@ -100,3 +100,8 @@ if st.button('Klasifikasi'):
     st.write("3 Rekomendasi Dessert berdasarkan klaster ini:")
     recommended_desserts = [food[i] for i in indices[0]]
     st.write(recommended_desserts)
+
+if food is not None and len(food) > 0:
+    print(f"Data food berhasil dimuat: {food[:5]}")  # Menampilkan 5 data pertama
+else:
+    print("Data food tidak ditemukan atau kosong")
