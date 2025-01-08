@@ -5,6 +5,7 @@ import h5py
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import NearestNeighbors
 import io
 
 # Fungsi untuk memuat data klasterisasi dari file .h5
