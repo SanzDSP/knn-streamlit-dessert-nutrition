@@ -31,35 +31,61 @@ cluster_labels = ['Good Dessert', 'Moderate Dessert', 'Indulgent Dessert']
 st.title("Dessert Recommendation")
 st.write("Masukkan pilihan untuk mendapatkan rekomendasi dessert sehat yang sesuai dengan kebutuhan Anda!")
 
-# Input selection untuk setiap fitur dengan tingkat Low, Medium, dan High
-sugar_level = st.selectbox("Tingkat gula", ['Low', 'Medium', 'High'], index=1)
-protein_level = st.selectbox("Tingkat protein", ['Low', 'Medium', 'High'], index=1)
-fat_level = st.selectbox("Tingkat lemak", ['Low', 'Medium', 'High'], index=1)
-carbohydrates_level = st.selectbox("Tingkat karbohidrat", ['Low', 'Medium', 'High'], index=1)
-fiber_level = st.selectbox("Tingkat serat", ['Low', 'Medium', 'High'], index=1)
+# Fitur yang digunakan dalam klasterisasi
+all_features = [
+    'Caloric Value', 'Fat', 'Saturated Fats', 'Monounsaturated Fats', 'Polyunsaturated Fats', 
+    'Carbohydrates', 'Sugars', 'Protein', 'Dietary Fiber', 'Cholesterol', 'Sodium', 'Water',
+    'Vitamin A', 'Vitamin B1', 'Vitamin B11', 'Vitamin B12', 'Vitamin B2', 'Vitamin B3', 
+    'Vitamin B5', 'Vitamin B6', 'Vitamin C', 'Vitamin D', 'Vitamin E', 'Vitamin K', 
+    'Calcium', 'Copper', 'Iron', 'Magnesium', 'Manganese', 'Phosphorus', 'Potassium', 
+    'Selenium', 'Zinc', 'Nutrition Density'
+]
 
-# Input checkbox untuk vitamin
+# Fungsi untuk menghitung nilai Low, Medium, dan High berdasarkan min dan max fitur
+def calculate_feature_range(feature_values):
+    min_value = np.min(feature_values)
+    max_value = np.max(feature_values)
+    medium_value = (min_value + max_value) / 2
+    return min_value, medium_value, max_value
+
+# Menentukan rentang nilai untuk setiap fitur
+feature_ranges = {}
+for i, feature in enumerate(all_features):
+    feature_ranges[feature] = calculate_feature_range(data_scaled[:, i])
+
+# Fungsi untuk mengonversi input pengguna menjadi nilai berdasarkan Low, Medium, dan High
+def get_value_for_level(level, feature_range):
+    min_value, medium_value, max_value = feature_range
+    if level == 'Low':
+        return min_value
+    elif level == 'Medium':
+        return medium_value
+    elif level == 'High':
+        return max_value
+
+# Input selection untuk setiap fitur
+user_inputs = {}
+for feature in all_features:
+    user_inputs[feature] = st.selectbox(f"Tingkat {feature}", ['Low', 'Medium', 'High'], index=1)
+
+# Input checkbox untuk vitamin (cukup beberapa checkbox saja yang diperlukan)
 vitamin_a = st.checkbox("Vitamin A")
 vitamin_c = st.checkbox("Vitamin C")
 vitamin_d = st.checkbox("Vitamin D")
 
-# Mengonversi pilihan slider menjadi nilai numerik
-sugar_dict = {'Low': 10, 'Medium': 50, 'High': 90}
-protein_dict = {'Low': 5, 'Medium': 15, 'High': 30}
-fat_dict = {'Low': 5, 'Medium': 15, 'High': 30}
-carbohydrates_dict = {'Low': 10, 'Medium': 50, 'High': 90}
-fiber_dict = {'Low': 5, 'Medium': 15, 'High': 30}
+# Menyusun input pengguna berdasarkan pilihan untuk semua fitur
+input_data = []
+for feature in all_features:
+    input_data.append(get_value_for_level(user_inputs[feature], feature_ranges[feature]))
 
-# Siapkan input pengguna untuk prediksi klaster
-input_data = np.array([sugar_dict[sugar_level], protein_dict[protein_level], fat_dict[fat_level], 
-                       carbohydrates_dict[carbohydrates_level], fiber_dict[fiber_level], 
-                       int(vitamin_a), int(vitamin_c), int(vitamin_d)]).reshape(1, -1)
+# Menambahkan vitamin jika dicentang
+input_data += [int(vitamin_a), int(vitamin_c), int(vitamin_d)]
 
-# Definisikan semua fitur yang digunakan dalam klasterisasi (8 fitur yang diinputkan)
-all_features = ['Sugars', 'Protein', 'Fat', 'Carbohydrates', 'Fiber', 'Vitamin A', 'Vitamin C', 'Vitamin D']
+# Menyusun input menjadi array
+input_data = np.array(input_data).reshape(1, -1)
 
 # Tambahkan nilai default untuk fitur lainnya yang tidak diinputkan oleh pengguna (misalnya, 0 atau nilai rata-rata)
-default_values = np.zeros(len(data_scaled[0]) - len(all_features))  # Menyesuaikan dengan jumlah fitur yang ada
+default_values = np.zeros(len(data_scaled[0]) - len(input_data[0]))  # Menyesuaikan dengan jumlah fitur yang ada
 input_data_full = np.concatenate([input_data, default_values.reshape(1, -1)], axis=1)
 
 # Menstandarisasi input pengguna menggunakan scaler yang sama
@@ -67,18 +93,22 @@ scaler = StandardScaler()
 scaler.fit(data_scaled)  # Fitting scaler pada data yang sudah ada
 input_data_scaled = scaler.transform(input_data_full)
 
-# Prediksi klaster berdasarkan input pengguna
-predicted_cluster = kmeans.predict(input_data_scaled)
+# Tombol untuk memulai klasifikasi
+if st.button('Klasifikasi'):
+    # Prediksi klaster berdasarkan input pengguna
+    predicted_cluster = kmeans.predict(input_data_scaled)
 
-# Menampilkan hasil prediksi
-st.write(f"Klaster yang sesuai: {cluster_labels[predicted_cluster[0]]}")
+    # Menampilkan hasil prediksi
+    st.write(f"Klaster yang sesuai: {cluster_labels[predicted_cluster[0]]}")
 
-# Menampilkan rekomendasi dessert berdasarkan klaster yang diprediksi
-st.write("Rekomendasi dessert berdasarkan klaster ini:")
+    # Menggunakan NearestNeighbors untuk menemukan tetangga terdekat berdasarkan hasil klasifikasi
+    neighbors = NearestNeighbors(n_neighbors=3, metric='euclidean')
+    neighbors.fit(data_scaled)  # Latih NearestNeighbors dengan data yang sudah ada
 
-# Filter dataset untuk hanya menampilkan dessert yang termasuk dalam klaster yang diprediksi
-recommended_desserts = [food[i] for i in range(len(food)) if clusters[i] == predicted_cluster[0]]
+    # Menemukan 3 tetangga terdekat berdasarkan input pengguna yang telah distandarisasi
+    distances, indices = neighbors.kneighbors(input_data_scaled)
 
-# Menampilkan nama-nama dessert yang direkomendasikan
-st.write("3 Rekomendasi Dessert:")
-st.write(recommended_desserts[:3])  # Menampilkan 3 rekomendasi teratas
+    # Menampilkan rekomendasi dessert berdasarkan tetangga terdekat
+    st.write("3 Rekomendasi Dessert berdasarkan klaster ini:")
+    recommended_desserts = [food[i] for i in indices[0]]
+    st.write(recommended_desserts)
