@@ -84,6 +84,28 @@ scaler = StandardScaler()
 scaler.fit(data_scaled)  # Fitting scaler pada data yang sudah ada
 input_data_scaled = scaler.transform(input_data)
 
+# Fungsi untuk memberikan penjelasan berdasarkan input
+def generate_health_explanation(input_data):
+    explanation = ""
+    
+    # Contoh logika sederhana untuk menghasilkan penjelasan
+    if input_data[0] > 1.0:  # Contoh kriteria untuk kalori
+        explanation += "Kalori tinggi, pertimbangkan untuk memilih dessert yang lebih rendah kalori jika ingin menjaga berat badan.\n"
+    else:
+        explanation += "Kalori rendah, pilihan dessert ini lebih baik jika menginginkan camilan yang lebih sehat.\n"
+
+    if input_data[7] > 1.0:  # Contoh kriteria untuk Protein
+        explanation += "Tinggi protein, baik untuk pemulihan otot dan meningkatkan energi.\n"
+    else:
+        explanation += "Protein rendah, pilihan ini kurang optimal untuk pembentukan otot.\n"
+        
+    if input_data[10] < 1.0:  # Contoh kriteria untuk Sodium
+        explanation += "Rendah sodium, baik untuk tekanan darah yang sehat.\n"
+    else:
+        explanation += "Tinggi sodium, hindari konsumsi berlebih untuk mencegah hipertensi.\n"
+    
+    return explanation
+
 # Tombol untuk memulai klasifikasi
 if st.button('Klasifikasi'):
     # Prediksi klaster berdasarkan input pengguna
@@ -103,5 +125,10 @@ if st.button('Klasifikasi'):
     st.write("3 Rekomendasi Dessert berdasarkan klaster ini:")
     recommended_desserts = [food[i] for i in indices[0]]
     st.write(recommended_desserts)
+
+    # Menampilkan penjelasan kesehatan berdasarkan input pengguna
+    st.write("Penjelasan Kesehatan Berdasarkan Input Anda:")
+    health_explanation = generate_health_explanation(input_data[0])
+    st.write(health_explanation)
 
 
