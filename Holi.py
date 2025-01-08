@@ -7,6 +7,15 @@ from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
 import io
 
+import streamlit as st
+import pandas as pd
+import numpy as np
+import h5py
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.neighbors import KNeighborsClassifier
+import io
+
 # Fungsi untuk memuat data klasterisasi dari file .h5
 def load_clusters(file_path):
     with h5py.File(file_path, 'r') as h5_file:
@@ -44,14 +53,28 @@ vitamin_d = st.checkbox("Vitamin D")
 sugar_dict = {'Low': 10, 'Medium': 50, 'High': 90}
 protein_dict = {'Low': 5, 'Medium': 15, 'High': 30}
 
+# Definisikan semua fitur yang digunakan dalam klasterisasi (34 fitur)
+all_features = [
+    'Caloric Value', 'Fat', 'Saturated Fats', 'Monounsaturated Fats', 'Polyunsaturated Fats', 
+    'Carbohydrates', 'Sugars', 'Protein', 'Dietary Fiber', 'Cholesterol', 'Sodium', 'Water',
+    'Vitamin A', 'Vitamin B1', 'Vitamin B11', 'Vitamin B12', 'Vitamin B2', 'Vitamin B3', 
+    'Vitamin B5', 'Vitamin B6', 'Vitamin C', 'Vitamin D', 'Vitamin E', 'Vitamin K', 
+    'Calcium', 'Copper', 'Iron', 'Magnesium', 'Manganese', 'Phosphorus', 'Potassium', 
+    'Selenium', 'Zinc', 'Nutrition Density'
+]
+
 # Siapkan input pengguna untuk prediksi klaster
 input_data = np.array([sugar_dict[sugar_level], protein_dict[protein_level], 
                        int(vitamin_a), int(vitamin_c), int(vitamin_d)]).reshape(1, -1)
 
+# Tambahkan nilai default untuk fitur lainnya yang tidak diinputkan oleh pengguna (misalnya, 0 atau nilai rata-rata)
+default_values = np.zeros(len(all_features) - 5)  # Karena 5 fitur telah diinputkan
+input_data_full = np.concatenate([input_data, default_values.reshape(1, -1)], axis=1)
+
 # Menstandarisasi input pengguna menggunakan scaler yang sama
 scaler = StandardScaler()
 scaler.fit(data_scaled)  # Fitting scaler pada data yang sudah ada
-input_data_scaled = scaler.transform(input_data)
+input_data_scaled = scaler.transform(input_data_full)
 
 # Prediksi klaster berdasarkan input pengguna
 predicted_cluster = kmeans.predict(input_data_scaled)
