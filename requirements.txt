@@ -1,1 +1,11 @@
-
+altair
+numpy
+pandas
+pydeck
+streamlit
+scikit-learn
+matplotlib
+tables
+plotly
+h5py
+imblearn
