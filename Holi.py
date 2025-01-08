@@ -68,30 +68,18 @@ user_inputs = {}
 for feature in all_features:
     user_inputs[feature] = st.selectbox(f"Tingkat {feature}", ['Low', 'Medium', 'High'], index=1)
 
-# Input checkbox untuk vitamin (cukup beberapa checkbox saja yang diperlukan)
-vitamin_a = st.checkbox("Vitamin A")
-vitamin_c = st.checkbox("Vitamin C")
-vitamin_d = st.checkbox("Vitamin D")
-
 # Menyusun input pengguna berdasarkan pilihan untuk semua fitur
 input_data = []
 for feature in all_features:
     input_data.append(get_value_for_level(user_inputs[feature], feature_ranges[feature]))
 
-# Menambahkan vitamin jika dicentang
-input_data += [int(vitamin_a), int(vitamin_c), int(vitamin_d)]
-
 # Menyusun input menjadi array
 input_data = np.array(input_data).reshape(1, -1)
-
-# Tambahkan nilai default untuk fitur lainnya yang tidak diinputkan oleh pengguna (misalnya, 0 atau nilai rata-rata)
-default_values = np.zeros(len(data_scaled[0]) - len(input_data[0]))  # Menyesuaikan dengan jumlah fitur yang ada
-input_data_full = np.concatenate([input_data, default_values.reshape(1, -1)], axis=1)
 
 # Menstandarisasi input pengguna menggunakan scaler yang sama
 scaler = StandardScaler()
 scaler.fit(data_scaled)  # Fitting scaler pada data yang sudah ada
-input_data_scaled = scaler.transform(input_data_full)
+input_data_scaled = scaler.transform(input_data)
 
 # Tombol untuk memulai klasifikasi
 if st.button('Klasifikasi'):
