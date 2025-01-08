@@ -7,6 +7,13 @@ from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
 import io
 
+import streamlit as st
+import pandas as pd
+import numpy as np
+import h5py
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+
 # Fungsi untuk memuat data klasterisasi dari file .h5
 def load_clusters(file_path):
     with h5py.File(file_path, 'r') as h5_file:
@@ -19,11 +26,9 @@ def load_clusters(file_path):
 file_path = "dessertnutrition_clusters.h5"  # Sesuaikan dengan lokasi file .h5
 data_scaled, clusters, centroids = load_clusters(file_path)
 
-# Buat objek KMeans menggunakan centroids yang sudah ada
+# Latih model KMeans menggunakan data yang sudah ada
 kmeans = KMeans(n_clusters=3, init=centroids, n_init=1, random_state=42)
-
-# Tentukan labels klaster yang sudah ada (jika diperlukan untuk analisis)
-kmeans.labels_ = clusters
+kmeans.fit(data_scaled)  # Latih model KMeans dengan data yang sudah ada
 
 # Deskripsi klaster
 cluster_labels = ['Good Dessert', 'Moderate Dessert', 'Indulgent Dessert']
