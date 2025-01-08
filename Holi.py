@@ -64,10 +64,12 @@ def get_value_for_level(level, feature_range):
     elif level == 'High':
         return max_value
 
-# Input selection untuk setiap fitur
+# Input selection untuk setiap fitur dalam tiga kolom
 user_inputs = {}
-for feature in all_features:
-    user_inputs[feature] = st.selectbox(f"Tingkat {feature}", ['Low', 'Medium', 'High'], index=1)
+columns = st.columns(3)  # Membagi tampilan menjadi 3 kolom
+for idx, feature in enumerate(all_features):
+    column_idx = idx % 3  # Menentukan kolom yang sesuai (0, 1, atau 2)
+    user_inputs[feature] = columns[column_idx].selectbox(f"Tingkat {feature}", ['Low', 'Medium', 'High'], index=1)
 
 # Menyusun input pengguna berdasarkan pilihan untuk semua fitur
 input_data = []
