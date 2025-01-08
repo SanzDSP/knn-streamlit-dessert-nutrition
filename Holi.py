@@ -17,7 +17,7 @@ def load_clusters(file_path):
     return data_scaled, clusters, centroids, food
 
 # Memuat model klasterisasi
-file_path = "dessertnutrition_clusters.h5"  # Sesuaikan dengan lokasi file .h5
+file_path = "twodessertnutrition_clusters.h5"  # Sesuaikan dengan lokasi file .h5
 data_scaled, clusters, centroids, food = load_clusters(file_path)
 
 # Latih model KMeans menggunakan data yang sudah ada
