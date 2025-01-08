@@ -19,10 +19,11 @@ def load_clusters(file_path):
 file_path = "dessertnutrition_clusters.h5"  # Sesuaikan dengan lokasi file .h5
 data_scaled, clusters, centroids = load_clusters(file_path)
 
-# Latih KMeans dengan data yang sudah dimuat
-kmeans = KMeans(n_clusters=3, random_state=42)
-kmeans.cluster_centers_ = centroids  # Memuat centroid yang sudah ada
-kmeans.labels_ = clusters  # Memuat label klaster yang sudah ada
+# Buat objek KMeans menggunakan centroids yang sudah ada
+kmeans = KMeans(n_clusters=3, init=centroids, n_init=1, random_state=42)
+
+# Tentukan labels klaster yang sudah ada (jika diperlukan untuk analisis)
+kmeans.labels_ = clusters
 
 # Deskripsi klaster
 cluster_labels = ['Good Dessert', 'Moderate Dessert', 'Indulgent Dessert']
