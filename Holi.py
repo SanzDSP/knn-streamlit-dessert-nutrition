@@ -93,6 +93,11 @@ if st.button('Klasifikasi'):
     neighbors = NearestNeighbors(n_neighbors=3, metric='euclidean')
     neighbors.fit(data_scaled)  # Latih NearestNeighbors dengan data yang sudah ada
 
+    if food is not None and len(food) > 0:
+        print(f"Data food berhasil dimuat: {food[:5]}")  # Menampilkan 5 data pertama
+    else:
+        print("Data food tidak ditemukan atau kosong")
+    
     # Menemukan 3 tetangga terdekat berdasarkan input pengguna yang telah distandarisasi
     distances, indices = neighbors.kneighbors(input_data_scaled)
 
@@ -101,7 +106,4 @@ if st.button('Klasifikasi'):
     recommended_desserts = [food[i] for i in indices[0]]
     st.write(recommended_desserts)
 
-if food is not None and len(food) > 0:
-    print(f"Data food berhasil dimuat: {food[:5]}")  # Menampilkan 5 data pertama
-else:
-    print("Data food tidak ditemukan atau kosong")
+
