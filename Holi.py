@@ -4,6 +4,7 @@ import numpy as np
 import h5py
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
+import io
 
 # Fungsi untuk memuat data klasterisasi dari file .h5
 def load_clusters(file_path):
