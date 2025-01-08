@@ -13,12 +13,12 @@ def load_clusters(file_path):
         data_scaled = h5_file['data_scaled'][:]
         clusters = h5_file['clusters'][:]
         centroids = h5_file['centroids'][:]
-        desserts = h5_file['desserts'][:]  # Nama-nama dessert
-    return data_scaled, clusters, centroids, desserts
+        food = h5_file['food'][:]  # Mengambil nama-nama dessert dari kolom 'food'
+    return data_scaled, clusters, centroids, food
 
 # Memuat model klasterisasi
 file_path = "dessertnutrition_clusters.h5"  # Sesuaikan dengan lokasi file .h5
-data_scaled, clusters, centroids, desserts = load_clusters(file_path)
+data_scaled, clusters, centroids, food = load_clusters(file_path)
 
 # Latih model KMeans menggunakan data yang sudah ada
 kmeans = KMeans(n_clusters=3, init=centroids, n_init=1, random_state=42)
@@ -31,33 +31,22 @@ cluster_labels = ['Good Dessert', 'Moderate Dessert', 'Indulgent Dessert']
 st.title("Dessert Recommendation")
 st.write("Masukkan pilihan untuk mendapatkan rekomendasi dessert sehat yang sesuai dengan kebutuhan Anda!")
 
-# Input selection untuk 34 fitur
-features = [
-    'Caloric Value', 'Fat', 'Saturated Fats', 'Monounsaturated Fats', 'Polyunsaturated Fats',
-    'Carbohydrates', 'Sugars', 'Protein', 'Dietary Fiber', 'Cholesterol', 'Sodium', 'Water',
-    'Vitamin A', 'Vitamin B1', 'Vitamin B11', 'Vitamin B12', 'Vitamin B2', 'Vitamin B3', 
-    'Vitamin B5', 'Vitamin B6', 'Vitamin C', 'Vitamin D', 'Vitamin E', 'Vitamin K', 
-    'Calcium', 'Copper', 'Iron', 'Magnesium', 'Manganese', 'Phosphorus', 'Potassium', 
-    'Selenium', 'Zinc', 'Nutrition Density'
-]
+# Input selection untuk tingkat gula dan protein
+sugar_level = st.selectbox("Tingkat gula", ['Low', 'Medium', 'High'], index=1)
+protein_level = st.selectbox("Tingkat protein", ['Low', 'Medium', 'High'], index=1)
 
-# Membuat selection input untuk masing-masing fitur dengan opsi 'Low', 'Medium', 'High'
-input_data = []
-for feature in features:
-    option = st.selectbox(f"Pilih {feature}", ['Low', 'Medium', 'High'])
-    
-    # Menentukan nilai fitur berdasarkan pilihan
-    if option == 'Low':
-        input_value = 0
-    elif option == 'Medium':
-        input_value = 50
-    elif option == 'High':
-        input_value = 100
-    
-    input_data.append(input_value)
+# Input checkbox untuk vitamin
+vitamin_a = st.checkbox("Vitamin A")
+vitamin_c = st.checkbox("Vitamin C")
+vitamin_d = st.checkbox("Vitamin D")
+
+# Mengonversi pilihan slider menjadi nilai numerik
+sugar_dict = {'Low': 10, 'Medium': 50, 'High': 90}
+protein_dict = {'Low': 5, 'Medium': 15, 'High': 30}
 
 # Siapkan input pengguna untuk prediksi klaster
-input_data = np.array(input_data).reshape(1, -1)
+input_data = np.array([sugar_dict[sugar_level], protein_dict[protein_level], 
+                       int(vitamin_a), int(vitamin_c), int(vitamin_d)]).reshape(1, -1)
 
 # Menstandarisasi input pengguna menggunakan scaler yang sama
 scaler = StandardScaler()
@@ -70,11 +59,11 @@ predicted_cluster = kmeans.predict(input_data_scaled)
 # Menampilkan hasil prediksi
 st.write(f"Klaster yang sesuai: {cluster_labels[predicted_cluster[0]]}")
 
-# Menampilkan rekomendasi dessert berupa nama-nama dessert
+# Menampilkan rekomendasi dessert berdasarkan klaster yang diprediksi
 st.write("Rekomendasi dessert berdasarkan klaster ini:")
 
-# Ambil nama-nama dessert yang termasuk dalam klaster yang diprediksi
-recommended_desserts = [desserts[i] for i in range(len(desserts)) if clusters[i] == predicted_cluster[0]]
+# Filter dataset untuk hanya menampilkan dessert yang termasuk dalam klaster yang diprediksi
+recommended_desserts = [food[i] for i in range(len(food)) if clusters[i] == predicted_cluster[0]]
 
-# Tampilkan daftar nama dessert
+# Menampilkan nama-nama dessert yang direkomendasikan
 st.write(recommended_desserts)
