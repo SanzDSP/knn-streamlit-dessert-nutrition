@@ -4,6 +4,7 @@ pandas
 pydeck
 streamlit
 scikit-learn
+sklearn
 matplotlib
 tables
 plotly
