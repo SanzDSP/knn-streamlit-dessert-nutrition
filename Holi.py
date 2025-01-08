@@ -40,9 +40,12 @@ cluster_labels = ['Good Dessert', 'Moderate Dessert', 'Indulgent Dessert']
 st.title("Dessert Recommendation")
 st.write("Masukkan pilihan untuk mendapatkan rekomendasi dessert sehat yang sesuai dengan kebutuhan Anda!")
 
-# Input selection untuk tingkat gula dan protein
+# Input selection untuk setiap fitur dengan tingkat Low, Medium, dan High
 sugar_level = st.selectbox("Tingkat gula", ['Low', 'Medium', 'High'], index=1)
 protein_level = st.selectbox("Tingkat protein", ['Low', 'Medium', 'High'], index=1)
+fat_level = st.selectbox("Tingkat lemak", ['Low', 'Medium', 'High'], index=1)
+carbohydrates_level = st.selectbox("Tingkat karbohidrat", ['Low', 'Medium', 'High'], index=1)
+fiber_level = st.selectbox("Tingkat serat", ['Low', 'Medium', 'High'], index=1)
 
 # Input checkbox untuk vitamin
 vitamin_a = st.checkbox("Vitamin A")
@@ -52,23 +55,20 @@ vitamin_d = st.checkbox("Vitamin D")
 # Mengonversi pilihan slider menjadi nilai numerik
 sugar_dict = {'Low': 10, 'Medium': 50, 'High': 90}
 protein_dict = {'Low': 5, 'Medium': 15, 'High': 30}
-
-# Definisikan semua fitur yang digunakan dalam klasterisasi (34 fitur)
-all_features = [
-    'Caloric Value', 'Fat', 'Saturated Fats', 'Monounsaturated Fats', 'Polyunsaturated Fats', 
-    'Carbohydrates', 'Sugars', 'Protein', 'Dietary Fiber', 'Cholesterol', 'Sodium', 'Water',
-    'Vitamin A', 'Vitamin B1', 'Vitamin B11', 'Vitamin B12', 'Vitamin B2', 'Vitamin B3', 
-    'Vitamin B5', 'Vitamin B6', 'Vitamin C', 'Vitamin D', 'Vitamin E', 'Vitamin K', 
-    'Calcium', 'Copper', 'Iron', 'Magnesium', 'Manganese', 'Phosphorus', 'Potassium', 
-    'Selenium', 'Zinc', 'Nutrition Density'
-]
+fat_dict = {'Low': 5, 'Medium': 15, 'High': 30}
+carbohydrates_dict = {'Low': 10, 'Medium': 50, 'High': 90}
+fiber_dict = {'Low': 5, 'Medium': 15, 'High': 30}
 
 # Siapkan input pengguna untuk prediksi klaster
-input_data = np.array([sugar_dict[sugar_level], protein_dict[protein_level], 
+input_data = np.array([sugar_dict[sugar_level], protein_dict[protein_level], fat_dict[fat_level], 
+                       carbohydrates_dict[carbohydrates_level], fiber_dict[fiber_level], 
                        int(vitamin_a), int(vitamin_c), int(vitamin_d)]).reshape(1, -1)
 
+# Definisikan semua fitur yang digunakan dalam klasterisasi (8 fitur yang diinputkan)
+all_features = ['Sugars', 'Protein', 'Fat', 'Carbohydrates', 'Fiber', 'Vitamin A', 'Vitamin C', 'Vitamin D']
+
 # Tambahkan nilai default untuk fitur lainnya yang tidak diinputkan oleh pengguna (misalnya, 0 atau nilai rata-rata)
-default_values = np.zeros(len(all_features) - 5)  # Karena 5 fitur telah diinputkan
+default_values = np.zeros(len(data_scaled[0]) - len(all_features))  # Menyesuaikan dengan jumlah fitur yang ada
 input_data_full = np.concatenate([input_data, default_values.reshape(1, -1)], axis=1)
 
 # Menstandarisasi input pengguna menggunakan scaler yang sama
@@ -89,4 +89,5 @@ st.write("Rekomendasi dessert berdasarkan klaster ini:")
 recommended_desserts = [food[i] for i in range(len(food)) if clusters[i] == predicted_cluster[0]]
 
 # Menampilkan nama-nama dessert yang direkomendasikan
-st.write(recommended_desserts)
+st.write("3 Rekomendasi Dessert:")
+st.write(recommended_desserts[:3])  # Menampilkan 3 rekomendasi teratas
