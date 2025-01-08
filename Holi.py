@@ -15,8 +15,13 @@ def load_clusters(file_path):
     return data_scaled, clusters, centroids
 
 # Memuat model klasterisasi
-file_path = "dessertnutrition_clusters.h5"  
+file_path = "dessertnutrition_clusters.h5"  # Sesuaikan dengan lokasi file .h5
 data_scaled, clusters, centroids = load_clusters(file_path)
+
+# Latih KMeans dengan data yang sudah dimuat
+kmeans = KMeans(n_clusters=3, random_state=42)
+kmeans.cluster_centers_ = centroids  # Memuat centroid yang sudah ada
+kmeans.labels_ = clusters  # Memuat label klaster yang sudah ada
 
 # Deskripsi klaster
 cluster_labels = ['Good Dessert', 'Moderate Dessert', 'Indulgent Dessert']
@@ -42,7 +47,6 @@ scaler = StandardScaler()
 input_data_scaled = scaler.fit_transform(input_data)
 
 # Prediksi klaster berdasarkan input pengguna
-kmeans = KMeans(n_clusters=3, random_state=42)
 predicted_cluster = kmeans.predict(input_data_scaled)
 
 # Menampilkan hasil prediksi
