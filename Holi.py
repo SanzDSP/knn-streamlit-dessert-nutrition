@@ -7,15 +7,6 @@ from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
 import io
 
-import streamlit as st
-import pandas as pd
-import numpy as np
-import h5py
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
-from sklearn.neighbors import KNeighborsClassifier
-import io
-
 # Fungsi untuk memuat data klasterisasi dari file .h5
 def load_clusters(file_path):
     with h5py.File(file_path, 'r') as h5_file:
